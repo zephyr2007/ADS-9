@@ -11,25 +11,25 @@ int main() {
     PMTree tree(symbols);
 
     std::cout << "All permutations:\n";
-    auto all = fetchAllPerms(tree);
+    auto all = getAllPerms(tree);
     for (const auto& p : all) {
         for (char c : p) std::cout << c;
         std::cout << ' ';
     }
     std::cout << "\n\n";
 
-    std::cout << "fetchPerm1(tree, 2): ";
-    auto p1 = fetchPerm1(tree, 2);
+    std::cout << "getPerm1(tree, 2): ";
+    auto p1 = getPerm1(tree, 2);
     for (char c : p1) std::cout << c;
     std::cout << "\n";
 
-    std::cout << "fetchPerm2(tree, 2): ";
-    auto p2 = fetchPerm2(tree, 2);
+    std::cout << "getPerm2(tree, 2): ";
+    auto p2 = getPerm2(tree, 2);
     for (char c : p2) std::cout << c;
     std::cout << "\n\n";
 
     std::ofstream data("result/data.csv");
-    data << "n,fetchAllPerms,fetchPerm1,fetchPerm2\n";
+    data << "n,getAllPerms,getPerm1,getPerm2\n";
 
     std::mt19937 rng(42);
     const int trials = 20;
@@ -42,7 +42,7 @@ int main() {
         int total = t.getTotalPerms();
 
         auto start = std::chrono::high_resolution_clock::now();
-        volatile auto allPerms = fetchAllPerms(t);
+        volatile auto allPerms = getAllPerms(t);
         auto end = std::chrono::high_resolution_clock::now();
         double timeAll = std::chrono::duration<double>(end - start).count();
 
@@ -52,12 +52,12 @@ int main() {
             int num = dist(rng);
 
             start = std::chrono::high_resolution_clock::now();
-            volatile auto res1 = fetchPerm1(t, num);
+            volatile auto res1 = getPerm1(t, num);
             end = std::chrono::high_resolution_clock::now();
             time1 += std::chrono::duration<double>(end - start).count();
 
             start = std::chrono::high_resolution_clock::now();
-            volatile auto res2 = fetchPerm2(t, num);
+            volatile auto res2 = getPerm2(t, num);
             end = std::chrono::high_resolution_clock::now();
             time2 += std::chrono::duration<double>(end - start).count();
         }
