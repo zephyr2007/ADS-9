@@ -7,22 +7,22 @@
 #include <vector>
 #include "tree.h"
 
-PMTree::Node* PMTree::build(const std::vector<char>& available) {
+PMTree::Node* PMTree::construct(const std::vector<char>& available) {
     Node* node = new Node('\0');
     if (available.empty()) {
         node->leaves = 1;
         return node;
     }
-    for (char c : available) {
-        Node* child = new Node(c);
-        std::vector<char> next;
+    for (char ch : available) {
+        Node* child = new Node(ch);
+        std::vector<char> remaining;
         for (char x : available) {
-            if (x != c) next.push_back(x);
+            if (x != ch) remaining.push_back(x);
         }
-        Node* sub = build(next);
-        child->children = sub->children;
-        child->leaves = sub->leaves;
-        delete sub;
+        Node* subtree = construct(remaining);
+        child->children = subtree->children;
+        child->leaves = subtree->leaves;
+        delete subtree;
         node->children.push_back(child);
     }
     node->leaves = 0;
@@ -32,15 +32,15 @@ PMTree::Node* PMTree::build(const std::vector<char>& available) {
     return node;
 }
 
-void PMTree::clear(Node* node) {
+void PMTree::cleanup(Node* node) {
     if (!node) return;
     for (Node* child : node->children) {
-        clear(child);
+        cleanup(child);
     }
     delete node;
 }
 
-void PMTree::collectPerms(Node* node, std::vector<char>& current,
+void PMTree::gatherPerms(Node* node, std::vector<char>& current,
     std::vector<std::vector<char>>& out) const {
     if (node->children.empty()) {
         out.push_back(current);
@@ -48,16 +48,16 @@ void PMTree::collectPerms(Node* node, std::vector<char>& current,
     }
     for (Node* child : node->children) {
         current.push_back(child->value);
-        collectPerms(child, current, out);
+        gatherPerms(child, current, out);
         current.pop_back();
     }
 }
 
-std::vector<char> PMTree::getPermFast(Node* node, int num) const {
-    if (num < 1 || num > node->leaves) return {};
+std::vector<char> PMTree::fetchPermQuick(Node* node, int idx) const {
+    if (idx < 1 || idx > node->leaves) return {};
     std::vector<char> result;
     Node* cur = node;
-    int k = num;
+    int k = idx;
     while (!cur->children.empty()) {
         int sum = 0;
         for (Node* child : cur->children) {
@@ -78,16 +78,16 @@ PMTree::PMTree(const std::vector<char>& alphabet) {
     std::vector<char> sorted = alphabet;
     std::sort(sorted.begin(), sorted.end());
     root = new Node('\0');
-    for (char c : sorted) {
-        Node* child = new Node(c);
-        std::vector<char> next;
+    for (char ch : sorted) {
+        Node* child = new Node(ch);
+        std::vector<char> remaining;
         for (char x : sorted) {
-            if (x != c) next.push_back(x);
+            if (x != ch) remaining.push_back(x);
         }
-        Node* sub = build(next);
-        child->children = sub->children;
-        child->leaves = sub->leaves;
-        delete sub;
+        Node* subtree = construct(remaining);
+        child->children = subtree->children;
+        child->leaves = subtree->leaves;
+        delete subtree;
         root->children.push_back(child);
     }
     totalPerms = 0;
@@ -98,31 +98,31 @@ PMTree::PMTree(const std::vector<char>& alphabet) {
 }
 
 PMTree::~PMTree() {
-    clear(root);
+    cleanup(root);
 }
 
-std::vector<std::vector<char>> PMTree::getAllPerms() const {
+std::vector<std::vector<char>> PMTree::fetchAllPerms() const {
     std::vector<std::vector<char>> result;
     std::vector<char> current;
-    collectPerms(root, current, result);
+    gatherPerms(root, current, result);
     return result;
 }
 
-std::vector<std::vector<char>> getAllPerms(const PMTree& tree) {
-    return tree.getAllPerms();
+std::vector<std::vector<char>> fetchAllPerms(const PMTree& tree) {
+    return tree.fetchAllPerms();
 }
 
-std::vector<char> getPerm1(const PMTree& tree, int num) {
-    auto all = tree.getAllPerms();
-    if (num < 1 || num > static_cast<int>(all.size())) {
+std::vector<char> fetchPerm1(const PMTree& tree, int idx) {
+    auto all = tree.fetchAllPerms();
+    if (idx < 1 || idx > static_cast<int>(all.size())) {
         return {};
     }
-    return all[num - 1];
+    return all[idx - 1];
 }
 
-std::vector<char> getPerm2(const PMTree& tree, int num) {
-    if (num < 1 || num > tree.getTotalPerms()) {
+std::vector<char> fetchPerm2(const PMTree& tree, int idx) {
+    if (idx < 1 || idx > tree.getTotalPerms()) {
         return {};
     }
-    return tree.getPermFast(tree.getRoot(), num);
+    return tree.fetchPermQuick(tree.getRoot(), idx);
 }
