@@ -16,25 +16,25 @@ class PMTree {
     Node* root;
     int totalPerms;
 
-    Node* build(const std::vector<char>& available);
-    void clear(Node* node);
-    void collectPerms(Node* node, std::vector<char>& current,
+    Node* construct(const std::vector<char>& available);
+    void cleanup(Node* node);
+    void gatherPerms(Node* node, std::vector<char>& current,
         std::vector<std::vector<char>>& out) const;
-    std::vector<char> getPermFast(Node* node, int num) const;
+    std::vector<char> fetchPermQuick(Node* node, int idx) const;
 
-    friend std::vector<char> getPerm2(const PMTree& tree, int num);
+    friend std::vector<char> fetchPerm2(const PMTree& tree, int idx);
 
  public:
     explicit PMTree(const std::vector<char>& alphabet);
     ~PMTree();
 
-    std::vector<std::vector<char>> getAllPerms() const;
+    std::vector<std::vector<char>> fetchAllPerms() const;
     Node* getRoot() const { return root; }
     int getTotalPerms() const { return totalPerms; }
 };
 
-std::vector<std::vector<char>> getAllPerms(const PMTree& tree);
-std::vector<char> getPerm1(const PMTree& tree, int num);
-std::vector<char> getPerm2(const PMTree& tree, int num);
+std::vector<std::vector<char>> fetchAllPerms(const PMTree& tree);
+std::vector<char> fetchPerm1(const PMTree& tree, int idx);
+std::vector<char> fetchPerm2(const PMTree& tree, int idx);
 
 #endif  // INCLUDE_TREE_H_
